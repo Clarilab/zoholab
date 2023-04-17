@@ -1,6 +1,7 @@
 package zoholab
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/go-resty/resty/v2"
@@ -37,12 +38,8 @@ func NewZohoService(restyClient *resty.Client, clientID, clientSecret, refreshto
 
 // GetUri returns the URI for the specified table in the Zoho Analytics account.
 func (s *ZohoService) GetUri(emailID, dbName, tbName string) string {
-	const errMsg = "Could not get uri"
-
 	// Join path is not used because the path must not be escaped.
-	url := reportsUri + "/api/" + emailID + "/" + urlSplCharReplace(dbName) + "/" + urlSplCharReplace(tbName)
-
-	return url
+	return fmt.Sprintf("%s"+"/api/"+"%s"+"/"+"%s"+"/"+"%s", reportsUri, emailID, urlSplCharReplace(dbName), urlSplCharReplace(tbName))
 }
 
 // AddRow adds row to the specified table identified by the URI.
