@@ -8,7 +8,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-const timeout = 3300
+const (
+	accountsUri = "https://accounts.zoho.eu/oauth/v2/token"
+	timeout     = 3300
+)
 
 // ZohoService is the struct for the zoho service.
 type AuthTokenMiddleware struct {
@@ -64,7 +67,7 @@ func (a *AuthTokenMiddleware) getOAuthToken() (*AuthToken, error) {
 			"grant_type":    "refresh_token"},
 		).
 		SetResult(&result).
-		Post(zoholab.AccountsUri)
+		Post(accountsUri)
 	if err != nil {
 		return nil, errors.Wrap(err, errMsg)
 	}

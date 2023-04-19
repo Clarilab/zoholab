@@ -10,7 +10,6 @@ import (
 
 const (
 	reportsUri   = "https://analyticsapi.zoho.eu"
-	AccountsUri  = "https://accounts.zoho.eu/oauth/v2/token"
 	validJson    = "true"
 	outputFormat = "JSON"
 	errorFormat  = "JSON"
@@ -20,19 +19,13 @@ const (
 
 // ZohoService is the struct for the zoho service.
 type ZohoService struct {
-	clientID     string
-	clientSecret string
-	refreshToken string
-	restyClient  *resty.Client
+	restyClient *resty.Client
 }
 
 // NewZohoService instantiates a new zoho service.
-func NewZohoService(restyClient *resty.Client, clientID, clientSecret, refreshtoken string) *ZohoService {
+func NewZohoService(restyClient *resty.Client) *ZohoService {
 	return &ZohoService{
-		restyClient:  restyClient,
-		clientID:     clientID,
-		clientSecret: clientSecret,
-		refreshToken: refreshtoken,
+		restyClient: restyClient,
 	}
 }
 
