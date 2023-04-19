@@ -36,19 +36,32 @@ func (s *ZohoService) GetUri(emailID, dbName, tbName string) string {
 }
 
 // AddRow adds row to the specified table identified by the URI.
-func (s *ZohoService) AddRow(tableUri string, columnValues map[string]string) (interface{}, error) {
+func (s *ZohoService) AddRow(tableUri string, columnValues map[string]string) (*ZohoAddRowResponse, error) {
 	const errMessage = "could not add row in zoho"
 
 	addedRows, err := s.sendAPIRequest(columnValues, true, tableUri, addRow)
 	if err != nil {
 		return nil, errors.Wrap(err, errMessage)
 	}
-	return addedRows, nil
+
+	rows, ok := addedRows.(*ZohoAddRowResponse)
+	if !ok {
+		return nil, errors.Wrap(errors.New("failed to assert type"), errMessage)
+	}
+
+	return rows, nil
 }
 
 // SendAPIRequest sends a request to the zoho api.
 func (s *ZohoService) sendAPIRequest(config map[string]string, isreturn bool, path, action string) (interface{}, error) {
 	const errMsg = "could not send api request"
+
+	var result interface{}
+
+	switch action {
+	case addRow:
+		result = &ZohoAddRowResponse{}
+	}
 
 	resp, err := s.restyClient.
 		R().
@@ -61,6 +74,7 @@ func (s *ZohoService) sendAPIRequest(config map[string]string, isreturn bool, pa
 			"ZOHO_VALID_JSON":    validJson,
 		}).
 		SetQueryParams(config).
+		SetResult(&result).
 		Post(path)
 	if err != nil {
 		return nil, errors.Wrap(err, errMsg)
@@ -70,11 +84,29 @@ func (s *ZohoService) sendAPIRequest(config map[string]string, isreturn bool, pa
 		return nil, errors.Wrap(FillApiError(resp.Body()), errMsg)
 	}
 
-	return resp, nil
+	return result, nil
 }
 
 // Internally used. For handling special character's in the workspace name or table name.
 func urlSplCharReplace(value string) string {
 	value = strings.Replace(value, "/", "(/)", -1)
 	return strings.Replace(value, "\\", "(//)", -1)
+}
+
+// ZohoAddRowResponse is the response that the zoho api returns.
+type ZohoAddRowResponse struct {
+	Response *ZohoResponse `json:"response"`
+}
+
+// ZohoResponse is part of the ZohoAddRowResponse response Model.
+type ZohoResponse struct {
+	URI            string         `json:"uri"`
+	Action         string         `json:"action"`
+	ResponseResult ResponseResult `json:"result"`
+}
+
+// ResponseResult is part of the ZohoAddRowResponse response Model.
+type ResponseResult struct {
+	ColumnOrder []string   `json:"column_order"`
+	Rows        [][]string `json:"rows"`
 }
