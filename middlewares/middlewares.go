@@ -3,7 +3,7 @@ package middlewares
 import (
 	"time"
 
-	"github.com/Clarilab/zoholab"
+	"github.com/Clarilab/zoholab/domain"
 	"github.com/go-resty/resty/v2"
 	"github.com/pkg/errors"
 )
@@ -73,7 +73,7 @@ func (a *AuthTokenMiddleware) getOAuthToken() (*AuthToken, error) {
 	}
 
 	if resp.IsError() {
-		return nil, errors.Wrap(zoholab.FillApiError(resp.Body()), errMsg)
+		return nil, errors.Wrap(domain.FillApiError(resp.Body()), errMsg)
 	}
 
 	return &result, nil

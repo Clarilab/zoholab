@@ -1,4 +1,4 @@
-package zoholab
+package domain
 
 import (
 	"fmt"

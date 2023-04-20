@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Clarilab/zoholab/domain"
+	"github.com/Clarilab/zoholab/middlewares"
 	"github.com/go-resty/resty/v2"
 	"github.com/pkg/errors"
 )
@@ -23,10 +25,17 @@ type ZohoService struct {
 }
 
 // NewZohoService instantiates a new zoho service.
-func NewZohoService(restyClient *resty.Client) *ZohoService {
+func NewZohoService() *ZohoService {
 	return &ZohoService{
-		restyClient: restyClient,
+		restyClient: resty.New(),
 	}
+}
+
+// SetServiceParams sets the params needed to call the zoho api.
+func (s *ZohoService) SetServiceParams(clientID, clientSecret, refreshToken string) {
+	authTokenMiddleware := middlewares.NewAuthTokenMiddleware(clientID, clientSecret, refreshToken)
+
+	s.restyClient.OnBeforeRequest(authTokenMiddleware.AddAuthTokenToRequest)
 }
 
 // GetUri returns the URI for the specified table in the Zoho Analytics account.
@@ -81,7 +90,7 @@ func (s *ZohoService) sendAPIRequest(config map[string]string, isreturn bool, pa
 	}
 
 	if resp.IsError() {
-		return nil, errors.Wrap(FillApiError(resp.Body()), errMsg)
+		return nil, errors.Wrap(domain.FillApiError(resp.Body()), errMsg)
 	}
 
 	return result, nil
