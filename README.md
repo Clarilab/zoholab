@@ -45,16 +45,9 @@ import "github.com/Clarilab/zoholab"
 
 ```go
 func main() {
-	authTokenMiddleware := zoholab.middlewares.NewAuthTokenMiddleware(clientid, clientsecret, refreshtoken)
+	zohoService := zoho.NewZohoService()
 
-	restyClient := resty.New().OnBeforeRequest(authTokenMiddleware.AddAuthTokenToRequest)
-
-	zohoService := zoholab.NewZohoService(
-		restyClient,
-		clientid,
-		clientsecret,
-		refreshtoken,
-	)
+	zohoService.SetServiceParams(Clientid, Clientsecret, Refreshtoken)
 }
  ```
 
