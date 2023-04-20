@@ -53,10 +53,10 @@ func (s *ZohoService) AddRow(tableUri string, columnValues map[string]string) (*
 }
 
 // SendAPIRequest sends a request to the zoho api.
-func (s *ZohoService) sendAPIRequest(config map[string]string, isreturn bool, path, action string) (interface{}, error) {
+func (s *ZohoService) sendAPIRequest(config map[string]string, isreturn bool, path, action string) (any, error) {
 	const errMsg = "could not send api request"
 
-	var result interface{}
+	var result any
 
 	switch action {
 	case addRow:
