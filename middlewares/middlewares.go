@@ -10,7 +10,6 @@ import (
 
 const (
 	accountsUri = "https://accounts.zoho.eu/oauth/v2/token"
-	timeout     = 3300
 )
 
 // ZohoService is the struct for the zoho service.
