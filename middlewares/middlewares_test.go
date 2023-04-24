@@ -15,6 +15,7 @@ func Test_isAccesTokenValid(t *testing.T) {
 
 	oneHourOffset := time.Date(now.Year(), now.Month(), now.Day(), now.Hour()-1, now.Minute(), now.Second(), now.Nanosecond(), now.Location())
 	oneMinuteOffset := time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute()-1, now.Second(), now.Nanosecond(), now.Location())
+	tenMinuteOffset := time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute()-10, now.Second(), now.Nanosecond(), now.Location())
 
 	testcases := map[string]struct {
 		expectedResult bool
@@ -28,6 +29,16 @@ func Test_isAccesTokenValid(t *testing.T) {
 					ExpiresIn:   int(oneHour),
 				},
 				lastRequest: &oneMinuteOffset,
+			},
+		},
+		"happy path2": {
+			expectedResult: true,
+			middleware: &AuthTokenMiddleware{
+				accessToken: &AuthToken{
+					AccessToken: "asdasdasd",
+					ExpiresIn:   int(oneHour),
+				},
+				lastRequest: &tenMinuteOffset,
 			},
 		},
 		"bad path": {

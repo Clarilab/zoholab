@@ -89,7 +89,7 @@ func (a *AuthTokenMiddleware) isAccesTokenValid() bool {
 		return false
 	}
 
-	if time.Since(*a.lastRequest).Seconds() > float64(a.accessToken.ExpiresIn-timeout) {
+	if time.Since(*a.lastRequest).Seconds() > float64(a.accessToken.ExpiresIn) {
 		return false
 	}
 
