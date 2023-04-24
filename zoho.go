@@ -48,29 +48,21 @@ func (s *ZohoService) GetUri(emailID, dbName, tbName string) string {
 func (s *ZohoService) AddRow(tableUri string, columnValues map[string]string) (*ZohoAddRowResponse, error) {
 	const errMessage = "could not add row in zoho"
 
-	addedRows, err := s.sendAPIRequest(columnValues, true, tableUri, addRow)
+	addedRows := ZohoAddRowResponse{
+		Response: &ZohoResponse{},
+	}
+
+	err := s.sendAPIRequest(columnValues, tableUri, addRow, &addedRows)
 	if err != nil {
 		return nil, errors.Wrap(err, errMessage)
 	}
 
-	rows, ok := addedRows.(*ZohoAddRowResponse)
-	if !ok {
-		return nil, errors.Wrap(errors.New("failed to assert type"), errMessage)
-	}
-
-	return rows, nil
+	return &addedRows, nil
 }
 
-// SendAPIRequest sends a request to the zoho api.
-func (s *ZohoService) sendAPIRequest(config map[string]string, isreturn bool, path, action string) (any, error) {
+// sendAPIRequest sends a request to the zoho api.
+func (s *ZohoService) sendAPIRequest(config map[string]string, path, action string, result any) error {
 	const errMsg = "could not send api request"
-
-	var result any
-
-	switch action {
-	case addRow:
-		result = &ZohoAddRowResponse{}
-	}
 
 	resp, err := s.restyClient.
 		R().
@@ -83,17 +75,17 @@ func (s *ZohoService) sendAPIRequest(config map[string]string, isreturn bool, pa
 			"ZOHO_VALID_JSON":    validJson,
 		}).
 		SetQueryParams(config).
-		SetResult(&result).
+		SetResult(result).
 		Post(path)
 	if err != nil {
-		return nil, errors.Wrap(err, errMsg)
+		return errors.Wrap(err, errMsg)
 	}
 
 	if resp.IsError() {
-		return nil, errors.Wrap(domain.FillApiError(resp.Body()), errMsg)
+		return errors.Wrap(domain.FillApiError(resp.Body()), errMsg)
 	}
 
-	return result, nil
+	return nil
 }
 
 // Internally used. For handling special character's in the workspace name or table name.
