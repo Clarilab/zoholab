@@ -48,9 +48,7 @@ func (s *ZohoService) GetUri(emailID, dbName, tbName string) string {
 func (s *ZohoService) AddRow(tableUri string, columnValues map[string]string) (*ZohoAddRowResponse, error) {
 	const errMessage = "could not add row in zoho"
 
-	addedRows := ZohoAddRowResponse{
-		Response: &ZohoResponse{},
-	}
+	var addedRows ZohoAddRowResponse
 
 	err := s.sendAPIRequest(columnValues, tableUri, addRow, &addedRows)
 	if err != nil {
