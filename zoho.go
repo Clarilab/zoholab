@@ -16,7 +16,10 @@ const (
 	outputFormat = "JSON"
 	errorFormat  = "JSON"
 	apiVersion   = "1.0"
-	addRow       = "ADDROW"
+	csvFileType  = "CSV"
+	autoIdentify = "true"
+	addRowAction = "ADDROW"
+	importAction = "IMPORT"
 )
 
 // ZohoService is the struct for the zoho service.
@@ -50,12 +53,29 @@ func (s *ZohoService) AddRow(tableUri string, columnValues map[string]string) (*
 
 	var addedRows ZohoAddRowResponse
 
-	err := s.sendAPIRequest(columnValues, tableUri, addRow, &addedRows)
+	err := s.sendAPIRequest(columnValues, tableUri, addRowAction, &addedRows)
 	if err != nil {
 		return nil, errors.Wrap(err, errMessage)
 	}
 
 	return &addedRows, nil
+}
+
+// ImportCSV import a bulk of rows as CSV
+func (s *ZohoService) ImportCSV(tableUri, csvData string, config map[string]string) (*ZohoAddRowResponse, error) {
+	const errMessage = "could not import csv data in zoho"
+
+	config["ZOHO_IMPORT_DATA"] = csvData
+	config["ZOHO_IMPORT_FILETYPE"] = csvFileType
+	config["ZOHO_AUTO_IDENTIFY"] = autoIdentify
+
+	var resp ZohoAddRowResponse
+	err := s.sendAPIRequest(config, tableUri, importAction, &resp)
+	if err != nil {
+		return nil, errors.Wrap(err, errMessage)
+	}
+
+	return &resp, err
 }
 
 // sendAPIRequest sends a request to the zoho api.

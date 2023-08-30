@@ -72,6 +72,21 @@ func addRow(zohoService *zoholab.ZohoService) error {
 }
  ```
 
+### Code Example to upload a csv-bulk
+```go
+zohoService := zoholab.NewZohoService()
+zohoService.SetServiceParams(clientid, clientsecret, refreshtoken)
+url := zohoService.GetUri(email, workspace, tbname)
+params := map[string]string{
+	"ZOHO_MATCHING_COLUMNS": "column1, column2, column3", // The values in the columns to be matched will be used for comparison
+	"ZOHO_IMPORT_TYPE":      "UPDATEADD", // APPEND/ TRUNCATEADD/ UPDATEADD
+	"ZOHO_ON_IMPORT_ERROR":  "ABORT", // ABORT/ SKIPROW/ SETCOLUMNEMPTY
+	"ZOHO_CREATE_TABLE":     "true", // true/ false
+}
+
+resp, err := zohoService.ImportCSV(url, csvContent, params) // csvContent is a csv as string
+```
+
 * Call this function in your main.go and pass in the zoho instance.
 
 ```go
