@@ -63,7 +63,8 @@ func (s *ZohoService) AddRow(tableUri string, columnValues map[string]string) (*
 
 // ImportCSV import a bulk of rows as CSV
 func (s *ZohoService) ImportCSV(tableUri, csvData string, config map[string]string) (*ZohoAddRowResponse, error) {
-	const errMessage = "could not import data in zoho"
+	const errMessage = "could not import csv data in zoho"
+
 	config["ZOHO_IMPORT_DATA"] = csvData
 	config["ZOHO_IMPORT_FILETYPE"] = csvFileType
 	config["ZOHO_AUTO_IDENTIFY"] = autoIdentify
