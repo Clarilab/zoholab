@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/go-resty/resty/v2 v2.10.0
+	github.com/gocarina/gocsv v0.0.0-20230616125104-99d496ca653d
 	github.com/json-iterator/go v1.1.12
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.4

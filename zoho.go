@@ -1,7 +1,10 @@
 package zoholab
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"strings"
 
 	"github.com/Clarilab/zoholab/domain"
@@ -53,7 +56,7 @@ func (s *ZohoService) AddRow(tableUri string, columnValues map[string]string) (*
 
 	var addedRows ZohoAddRowResponse
 
-	err := s.sendAPIRequest(columnValues, tableUri, addRowAction, &addedRows)
+	err := s.sendAPIRequest(columnValues, nil, tableUri, addRowAction, nil, &addedRows)
 	if err != nil {
 		return nil, errors.Wrap(err, errMessage)
 	}
@@ -65,12 +68,27 @@ func (s *ZohoService) AddRow(tableUri string, columnValues map[string]string) (*
 func (s *ZohoService) ImportCSV(tableUri, csvData string, config map[string]string) (*ZohoAddRowResponse, error) {
 	const errMessage = "could not import csv data in zoho"
 
-	config["ZOHO_IMPORT_DATA"] = csvData
-	config["ZOHO_IMPORT_FILETYPE"] = csvFileType
 	config["ZOHO_AUTO_IDENTIFY"] = autoIdentify
 
+	bodyBuf := bytes.NewBufferString("")
+	bodyWriter := multipart.NewWriter(bodyBuf)
+	_, err := bodyWriter.CreateFormFile("ZOHO_FILE", "file.csv")
+	if err != nil {
+		return nil, errors.Wrap(err, errMessage)
+	}
+
+	fileReader := strings.NewReader(csvData)
+
+	boundary := bodyWriter.Boundary()
+	closeBuf := bytes.NewBufferString(fmt.Sprintf("\r\n--%s--\r\n", boundary))
+	requestReader := io.MultiReader(bodyBuf, fileReader, closeBuf)
+
+	headers := map[string]string{
+		"Content-Type": "multipart/form-data; boundary=" + boundary,
+	}
+
 	var resp ZohoAddRowResponse
-	err := s.sendAPIRequest(config, tableUri, importAction, &resp)
+	err = s.sendAPIRequest(config, headers, tableUri, importAction, requestReader, &resp)
 	if err != nil {
 		return nil, errors.Wrap(err, errMessage)
 	}
@@ -79,12 +97,17 @@ func (s *ZohoService) ImportCSV(tableUri, csvData string, config map[string]stri
 }
 
 // sendAPIRequest sends a request to the zoho api.
-func (s *ZohoService) sendAPIRequest(config map[string]string, path, action string, result any) error {
+func (s *ZohoService) sendAPIRequest(config map[string]string, additionalHeaders map[string]string, path, action string, body any, result any) error {
 	const errMsg = "could not send api request"
 
-	resp, err := s.restyClient.
+	if additionalHeaders == nil {
+		additionalHeaders = map[string]string{}
+	}
+	additionalHeaders["User-Agent"] = "ZohoAnalytics GoLibrary"
+
+	request := s.restyClient.
 		R().
-		SetHeader("User-Agent", "ZohoAnalytics GoLibrary").
+		SetHeaders(additionalHeaders).
 		SetQueryParams(map[string]string{
 			"ZOHO_ACTION":        action,
 			"ZOHO_OUTPUT_FORMAT": outputFormat,
@@ -93,8 +116,13 @@ func (s *ZohoService) sendAPIRequest(config map[string]string, path, action stri
 			"ZOHO_VALID_JSON":    validJson,
 		}).
 		SetQueryParams(config).
-		SetResult(result).
-		Post(path)
+		SetResult(result)
+
+	if body != nil {
+		request.SetBody(body)
+	}
+
+	resp, err := request.Post(path)
 	if err != nil {
 		return errors.Wrap(err, errMsg)
 	}
