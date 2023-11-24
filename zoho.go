@@ -100,14 +100,8 @@ func (s *ZohoService) ImportCSV(tableUri, csvData string, config map[string]stri
 func (s *ZohoService) sendAPIRequest(config map[string]string, additionalHeaders map[string]string, path, action string, body any, result any) error {
 	const errMsg = "could not send api request"
 
-	if additionalHeaders == nil {
-		additionalHeaders = map[string]string{}
-	}
-	additionalHeaders["User-Agent"] = "ZohoAnalytics GoLibrary"
-
 	request := s.restyClient.
 		R().
-		SetHeaders(additionalHeaders).
 		SetQueryParams(map[string]string{
 			"ZOHO_ACTION":        action,
 			"ZOHO_OUTPUT_FORMAT": outputFormat,
@@ -120,6 +114,10 @@ func (s *ZohoService) sendAPIRequest(config map[string]string, additionalHeaders
 
 	if body != nil {
 		request.SetBody(body)
+	}
+
+	if additionalHeaders != nil {
+		request.SetHeaders(additionalHeaders)
 	}
 
 	resp, err := request.Post(path)
