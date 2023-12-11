@@ -13,7 +13,7 @@ var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // ZohoError is the error that the zoho api returns.
 type ZohoError struct {
-	Response *Response `json:"response"`
+	Response Response `json:"response"`
 }
 
 // Response is part of the ZohoError response Model.
