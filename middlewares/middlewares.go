@@ -75,6 +75,8 @@ func (a *AuthTokenMiddleware) getOAuthToken() (*AuthToken, error) {
 		return nil, errors.Wrap(domain.FillApiError(resp.Body()), errMsg)
 	}
 
+    a.accessToken = &result
+
 	return &result, nil
 }
 
