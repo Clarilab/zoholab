@@ -3,7 +3,7 @@ module github.com/Clarilab/zoholab
 go 1.20
 
 require (
-	github.com/go-resty/resty/v2 v2.14.0
+	github.com/go-resty/resty/v2 v2.15.3
 	github.com/json-iterator/go v1.1.12
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.9.0
