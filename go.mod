@@ -6,7 +6,7 @@ require (
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/json-iterator/go v1.1.12
 	github.com/pkg/errors v0.9.1
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.0
 )
 
 require (
